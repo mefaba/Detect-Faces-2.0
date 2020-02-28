@@ -3,7 +3,7 @@ import React from 'react';
 
 const Rank = () => {
     return(
-        <div className="center">
+        <div className="center-column">
             <div className ="white f3">
                 {`Fatih sıralaman:`}
             </div>
