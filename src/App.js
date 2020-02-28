@@ -128,8 +128,8 @@ const app = new Clarifai.App({apiKey: '77b1488d057a43e09bb11a45ef9724f4'});
   
 function App() {
   const [input, setInput] = useState("");
-  const [image, setImage] = useState("");
-  
+  const [image, setImage] = useState("https://w.wallhaven.cc/full/nz/wallhaven-nzwezj.jpg");
+  const [box, setBox] = useState({});
 
 
   function onInputChange(event) {
@@ -137,29 +137,48 @@ function App() {
     setInput(event.target.value)
   }
 
+  function calculateFaceLocation(data_response){
+    const clarifaiFace = data_response.outputs[0].data.regions[0].region_info.bounding_box
+    const image = document.getElementById("inputimage");
+    const width = image.width
+    const height = image.height
+    /* console.log(width,height) */
+    return{
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height)
+    }
+  }
+  function displayFaceBox(box){
+    console.log(box)
+    setBox(box)
+  }
+
   function onImageSubmit(event){
     console.log("click")
     setImage(input)
     /* "a403429f2ddf4b49b307e318f00e528b" */
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, input).then(
-    function(response) {
-      console.log(response.outputs[0].data.regions[0].region_info.bounding_box)
-    },
-    function(err) {
-      console.log("ImageSubmit Problem")
-    }
-  );
+    app.models
+      .predict(Clarifai.FACE_DETECT_MODEL, input)
+      .then(
+        function(response) {
+          displayFaceBox(calculateFaceLocation(response))
+          /* console.log(response.outputs[0].data.regions[0].region_info.bounding_box) */
+        })
+      .catch(err => console.log(err))
+  
   }
 
   return (
     <div>
-      {/* <Particles params={partiparam} className ="particles"/> */}
-      <Navigation />
+      <Particles params={partiparam} className ="particles"/>
+      {/* <Navigation /> */}
       <Logo />
       <Rank />
       <ImageLinkForm onInputChange = {onInputChange} onImageSubmit ={onImageSubmit}/>
 
-      <FaceRecognition image={image} />
+      <FaceRecognition image={image} box ={box}/>
     </div>
   );
 }

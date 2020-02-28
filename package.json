@@ -1,5 +1,6 @@
 {
   "name": "facedetect",
+  "homepage": "https://mefaba.github.io/Detect-Faces-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

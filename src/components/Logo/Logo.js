@@ -1,7 +1,7 @@
 import React from 'react';
 import Tilt from 'react-tilt'
 import "./Logo.css"
-import searcher from "./search.png"
+import searcher from "./anger.png"
 
 const Logo = () => {
     return(

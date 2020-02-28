@@ -5,10 +5,10 @@ const Rank = () => {
     return(
         <div className="center-column">
             <div className ="white f3">
-                {`Fatih sıralaman:`}
+                {`Hoşgeldin, Sıralaman:`}
             </div>
             <div className ="white f1">
-                {`#5`}
+                {`-1`}
             </div>
         </div>
 
