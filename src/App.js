@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
+
 /* import logo from './logo.svg'; */
 import './App.css';
 import Navigation from "./components/Navigation/Navigation.js"
 import Logo from "./components/Logo/Logo.js"
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm.js"
 import Rank from "./components/Rank/Rank.js"
+import FaceRecognition from "./components/FaceRecognition/FaceRecognition.js"
 import Particles from 'react-particles-js';
+import Clarifai from "clarifai"
 
 const partiparam = 
   {
@@ -119,19 +122,44 @@ const partiparam =
     "retina_detect": true
   }
 
+const app = new Clarifai.App({apiKey: '77b1488d057a43e09bb11a45ef9724f4'});
 
+
+  
 function App() {
+  const [input, setInput] = useState("");
+  const [image, setImage] = useState("");
+  
+
+
+  function onInputChange(event) {
+    console.log(event.target.value)
+    setInput(event.target.value)
+  }
+
+  function onImageSubmit(event){
+    console.log("click")
+    setImage(input)
+    /* "a403429f2ddf4b49b307e318f00e528b" */
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, input).then(
+    function(response) {
+      console.log(response.outputs[0].data.regions[0].region_info.bounding_box)
+    },
+    function(err) {
+      console.log("ImageSubmit Problem")
+    }
+  );
+  }
+
   return (
     <div>
-      <Particles params={partiparam} className ="particles"/>
+      {/* <Particles params={partiparam} className ="particles"/> */}
       <Navigation />
       <Logo />
       <Rank />
-      <ImageLinkForm />
-     
-      {/* 
-      
-      <FaceRecognition /> */}
+      <ImageLinkForm onInputChange = {onInputChange} onImageSubmit ={onImageSubmit}/>
+
+      <FaceRecognition image={image} />
     </div>
   );
 }
