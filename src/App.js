@@ -232,7 +232,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* <Particles params={partiparam} className ="particles"/> */}
+      <Particles params={partiparam} className ="particles"/>
       <Navigation onRouteChange ={onRouteChange} isSignedIn={isSignedIn}/>
       {route==="home" 
       ? <div>
