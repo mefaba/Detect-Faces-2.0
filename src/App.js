@@ -10,7 +10,7 @@ import FaceRecognition from "./components/FaceRecognition/FaceRecognition.js"
 import Signin from "./components/Signin/Signin.js"
 import Register from "./components/Register/Register.js"
 import Particles from 'react-particles-js';
-import Clarifai from "clarifai"
+/* import Clarifai from "clarifai" */
 
 const partiparam = 
   {
@@ -123,10 +123,6 @@ const partiparam =
     },
     "retina_detect": true
   }
-
-const app = new Clarifai.App({apiKey: '77b1488d057a43e09bb11a45ef9724f4'});
-
-
   
 function App() {
   const [input, setInput] = useState("");
@@ -134,10 +130,42 @@ function App() {
   const [box, setBox] = useState({});
   const [route, setRoute] = useState("signin")
   const [isSignedIn,setIsSignedIn] = useState(false)
+  const [user, setUser] = useState({
+                                id: "",
+                                name: "",
+                                email: "",
+                                entries: 0,
+                                joined: ""
+                            })
+
+
+  function loadUser(data){
+    setUser({
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    })
+  }
+  function clearState(){
+    setInput("")
+    setImage("https://w.wallhaven.cc/full/nz/wallhaven-nzwezj.jpg")
+    setBox({})
+    setRoute("signin")
+    setIsSignedIn(false)
+    setUser({
+      id: "",
+      name: "",
+      email: "",
+      entries: 0,
+      joined: ""
+  })
+  }
 
   function onRouteChange(targetRoute){
     if(targetRoute==="signout"){
-      setIsSignedIn(false)
+      clearState()
     }else if(targetRoute==="home"){
       setIsSignedIn(true)
     }
@@ -163,21 +191,41 @@ function App() {
     }
   }
   function displayFaceBox(box){
-    console.log(box)
+    /* console.log(box) */
     setBox(box)
   }
 
   function onImageSubmit(event){
-    console.log("click")
+    /* console.log("click") */
     setImage(input)
     /* "a403429f2ddf4b49b307e318f00e528b" */
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then(
-        function(response) {
-          displayFaceBox(calculateFaceLocation(response))
-          /* console.log(response.outputs[0].data.regions[0].region_info.bounding_box) */
+      fetch("https://warm-stream-92103.herokuapp.com/imageURL",{
+        method: "post",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            input: input
         })
+      })
+      .then(response => response.json())
+      .then(response => {
+        if(response){
+          fetch("https://warm-stream-92103.herokuapp.com/image",{
+            method: "put",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                id: user.id,
+            })
+          })
+          .then(response => response.json())
+          .then(count =>{
+            setUser(user => ({...user,entries: count}))
+          })
+          
+        }
+        displayFaceBox(calculateFaceLocation(response))
+        /* setState(state => ({ ...state, left: e.pageX, top: e.pageY })); */
+        }
+      )
       .catch(err => console.log(err))
   
   }
@@ -189,15 +237,15 @@ function App() {
       {route==="home" 
       ? <div>
           <Logo />
-          <Rank />
+          <Rank name = {user.name} entries = {user.entries}/>
           <ImageLinkForm 
             onInputChange = {onInputChange} 
             onImageSubmit ={onImageSubmit}/>
           <FaceRecognition image={image} box ={box}/>
         </div>
       : (route==="signin"
-        ?<Signin onRouteChange = {onRouteChange} /> 
-        :<Register onRouteChange = {onRouteChange}/>
+        ?<Signin onRouteChange = {onRouteChange} loadUser ={loadUser} /> 
+        :<Register onRouteChange = {onRouteChange} loadUser ={loadUser}/>
         )
     }
     </div>

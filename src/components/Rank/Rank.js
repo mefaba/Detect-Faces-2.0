@@ -1,17 +1,16 @@
 import React from 'react';
 
 
-const Rank = () => {
+const Rank = ({name,entries}) => {
     return(
         <div className="center-column">
             <div className ="white f3">
-                {`Hoşgeldin, Sıralaman:`}
+                {`Hoşgeldin ${name} , Puanın:`}
             </div>
             <div className ="white f1">
-                {`-1`}
+                {entries}
             </div>
         </div>
-
     )
 }
 
