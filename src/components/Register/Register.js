@@ -22,7 +22,7 @@ function Register({onRouteChange,loadUser}){
         if (!registerName & !registerEmail & !registerPassword){
             return console.log("enter valid name, email,password")
         } 
-            fetch("https://warm-stream-92103.herokuapp.com/register",{
+            fetch(`http://localhost:5000/register`,{
                 method: "post",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
@@ -31,7 +31,9 @@ function Register({onRouteChange,loadUser}){
                     name: registerName
                 })
             })
-            .then(response => response.json())
+            .then(response =>  {
+                return response.json()
+            } )
             .then(user => {
                 if(user){
                     loadUser(user)
