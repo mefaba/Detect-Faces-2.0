@@ -17,7 +17,7 @@ import Register from "./components/Register/Register.js"
 function App() {
   const [input, setInput] = useState("");
   const [image, setImage] = useState("");
-  const [box, setBox] = useState({});
+  const [boxes, setBoxes] = useState([]);
   const [route, setRoute] = useState("signin")
   const [isSignedIn,setIsSignedIn] = useState(false)
   const [user, setUser] = useState({
@@ -41,7 +41,7 @@ function App() {
   function clearState(){
     setInput("")
     setImage("")
-    setBox({})
+    setBoxes({})
     setRoute("signin")
     setIsSignedIn(false)
     setUser({
@@ -67,22 +67,25 @@ function App() {
     setInput(event.target.value)
   }
 
-  function calculateFaceLocation(data_response){
-    const clarifaiFace = data_response.outputs[0].data.regions[0].region_info.bounding_box
-    const image = document.getElementById("inputimage");
-    const width = image.width
-    const height = image.height
-    /* console.log(width,height) */
-    return{
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+  function calculateFaceLocations(data_response){
+    const clarifaiFaces = data_response.outputs[0].data.regions.map(face=>{
+      const clarifaiFace = face.region_info.bounding_box
+      const image = document.getElementById("inputimage");
+      const width = image.width
+      const height = image.height
+      /* console.log(width,height) */
+      return{
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      }
+    })
+    return clarifaiFaces
   }
-  function displayFaceBox(box){
-    /* console.log(box) */
-    setBox(box)
+
+  function displayFaceBoxes(boxes){
+          setBoxes(boxes)
   }
 
   function onImageSubmit(event){
@@ -110,7 +113,7 @@ function App() {
           })
           
         }
-        displayFaceBox(calculateFaceLocation(response))
+        displayFaceBoxes(calculateFaceLocations(response))
         /* setState(state => ({ ...state, left: e.pageX, top: e.pageY })); */
         }
       )
@@ -129,7 +132,7 @@ function App() {
           <ImageLinkForm 
             onInputChange = {onInputChange} 
             onImageSubmit ={onImageSubmit}/>
-          <FaceRecognition image={image} box ={box}/>
+          <FaceRecognition image={image} boxes ={boxes}/>
         </div>
       : (route==="signin"
         ?<Signin onRouteChange = {onRouteChange} loadUser ={loadUser} /> 
